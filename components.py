@@ -74,14 +74,18 @@ class Board:
 
     def neighbors(self, col: int, row: int) -> List[Tuple[int, int]]:
         # TODO: Return list of valid neighboring coordinates around (col,row).
-        # deltas = [
-        #     (-1, -1), (0, -1), (1, -1),
-        #     (-1, 0),            (1, 0),
-        #     (-1, 1),  (0, 1),  (1, 1),
-        # ]
-        # result = []
-        
-        # return result
+        # 해결
+        deltas = [
+            (-1, -1), (0, -1), (1, -1),
+            (-1, 0),            (1, 0),
+            (-1, 1),  (0, 1),  (1, 1),
+        ]
+        result = []
+        for dx, dy in deltas:
+            nx, ny = col + dx, row + dy
+            if self.is_inbounds(nx, ny):
+                result.append((nx, ny))
+        return result
         pass
 
     def place_mines(self, safe_col: int, safe_row: int) -> None:
@@ -135,4 +139,5 @@ class Board:
             for cell in self.cells:
                 if not cell.state.is_revealed and not cell.state.is_mine:
                     cell.state.is_revealed = True
+
 
