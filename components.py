@@ -89,19 +89,38 @@ class Board:
         pass
 
     def place_mines(self, safe_col: int, safe_row: int) -> None:
-        # TODO: Place mines randomly, guaranteeing the first click and its neighbors are safe. And Compute adjacency counts
-        # all_positions = [(c, r) for r in range(self.rows) for c in range(self.cols)]
-        # forbidden = {(safe_col, safe_row)} | set(self.neighbors(safe_col, safe_row))
-        # pool = [p for p in all_positions if p not in forbidden]
-        # random.shuffle(pool)
+        # TODO: Place mines randomly, guaranteeing the first click and its neighbors are safe. And Compute adjacency counts        
+        #지뢰를 놓을 수 있는 모든 좌표 리스트 생성
+        all_positions = [(c, r) for r in range(self.rows) for c in range(self.cols)]
         
-        # Compute adjacency counts
-        # for r in range(self.rows):
-        #     for c in range(self.cols):
+        #첫 클릭한 곳과 그 주변은 지뢰 금지 구역으로 설정
+        forbidden = {(safe_col, safe_row)} | set(self.neighbors(safe_col, safe_row))
+        
+        #금지 구역을 뺀 나머지 좌표 중에서 랜덤으로 지뢰 개수만큼 뽑기
+        pool = [p for p in all_positions if p not in forbidden]
+        mine_positions = random.sample(pool, self.num_mines)
 
-        # self._mines_placed = True
+        #지뢰 배치
+        for c, r in mine_positions:
+            idx = self.index(c, r)
+            self.cells[idx].state.is_mine = True
 
-        pass
+        #각 셀마다 주변에 지뢰가 몇 개인지 계산
+        for r in range(self.rows):
+            for c in range(self.cols):
+                idx = self.index(c, r)
+                if self.cells[idx].state.is_mine:
+                    continue #지뢰 칸은 계산 안 함
+                
+                #주변 지뢰 개수 세기
+                count = 0
+                for nc, nr in self.neighbors(c, r):
+                    n_idx = self.index(nc, nr)
+                    if self.cells[n_idx].state.is_mine:
+                        count += 1
+                self.cells[idx].state.adjacent = count
+
+        self._mines_placed = True
 
     def reveal(self, col: int, row: int) -> None:
         # TODO: Reveal a cell; if zero-adjacent, iteratively flood to neighbors.
@@ -139,5 +158,6 @@ class Board:
             for cell in self.cells:
                 if not cell.state.is_revealed and not cell.state.is_mine:
                     cell.state.is_revealed = True
+
 
 
