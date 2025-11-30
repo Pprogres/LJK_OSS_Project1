@@ -117,31 +117,46 @@ class InputController:
 
     def handle_mouse(self, pos, button) -> None:
         # TODO: Handle mouse button events: left=reveal, right=flag, middle=neighbor highlight  in here
-        # col, row = self.pos_to_grid(pos[0], pos[1])
-        # if col == -1:
-        #     return
-        # game = self.game
-        # if button == config.mouse_left:
-        #     game.highlight_targets.clear()
+        # 마우스 좌표를 격자 좌표(col, row)로 변환
+        col, row = self.pos_to_grid(pos[0], pos[1])
         
-        #         if not game.started:
-        #             game.started = 
-        #             game.start_ticks_ms = pygame.time.get_ticks()
-    
-        # elif button == config.mouse_right:
-        #     game.highlight_targets.clear()
-        #        
-        # elif button == config.mouse_middle:
-        #         neighbors = []
-        #         game.highlight_targets = {
-        #             (nc, nr)
-        #             for (nc, nr) in neighbors
-        #             if not game.board.cells[game.board.index(nc, nr)].state.is_revealed
-        #         }
+        # 격자 밖을 클릭했으면 무시
+        if col == -1:
+            return
         
-        #         game.highlight_until_ms = pygame.time.get_ticks() + config.highlight_duration_ms
+        game = self.game
+        
+        # 게임이 끝났으면 조작 불가
+        if game.board.game_over or game.board.win:
+            return
 
-        pass
+        # 좌클릭
+        if button == config.mouse_left:
+            game.highlight_targets.clear() # 하이라이트 끄기
+            
+            # 게임 시작 전이면 타이머 시작
+            if not game.started:
+                game.started = True
+                game.start_ticks_ms = pygame.time.get_ticks()
+            
+            game.board.reveal(col, row)
+    
+        # 우클릭 깃발
+        elif button == config.mouse_right:
+            game.highlight_targets.clear()
+            game.board.toggle_flag(col, row)
+               
+        # 휠클릭 주위강조
+        elif button == config.mouse_middle:
+            # 아직 안 열린 주변 칸들을 가져옴
+            neighbors = game.board.neighbors(col, row)
+            game.highlight_targets = {
+                (nc, nr)
+                for (nc, nr) in neighbors
+                if not game.board.cells[game.board.index(nc, nr)].state.is_revealed
+            }
+            # config.highlight_duration_ms초 동안 하이라이트 유지
+            game.highlight_until_ms = pygame.time.get_ticks() + config.highlight_duration_ms
 
 class Game:
     """Main application object orchestrating loop and high-level state."""
@@ -237,4 +252,5 @@ def main() -> int:
 
 
 if __name__ == "__main__":
+
     raise SystemExit(main())
