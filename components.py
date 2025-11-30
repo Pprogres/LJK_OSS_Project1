@@ -68,6 +68,8 @@ class Board:
 
     def is_inbounds(self, col: int, row: int) -> bool:
         # TODO: Return True if (col,row) is inside the board bounds.
+        # 해결
+        return 0 <= col < self.cols and 0 <= row < self.rows
         pass
 
     def neighbors(self, col: int, row: int) -> List[Tuple[int, int]]:
@@ -133,3 +135,4 @@ class Board:
             for cell in self.cells:
                 if not cell.state.is_revealed and not cell.state.is_mine:
                     cell.state.is_revealed = True
+
